@@ -1,4 +1,3 @@
-payload:
     - DOMAIN,vps.pkpkgtr.xyz:8443,DIRECT
     - DOMAIN-SUFFIX,pkpkgtr.lol,DIRECT
     - DOMAIN-SUFFIX,pkpkgtr.xyz,DIRECT
@@ -27,7 +26,6 @@ payload:
     - DOMAIN,yacd.haishan.me,DIRECT
     - DOMAIN,clash.razord.top,DIRECT
     - DOMAIN-SUFFIX,dcg.microsoft.com,DIRECT
-    - DOMAIN-SUFFIX,dl.delivery.mp.microsoft.com,DIRECT
     - DOMAIN-SUFFIX,download.windowsupdate.com,DIRECT
     - DOMAIN,cn.bing.com,DIRECT
     - DOMAIN,b.c2r.ts.cdn.office.net,DIRECT
@@ -109,7 +107,6 @@ payload:
     - DOMAIN-SUFFIX,dcblivedazn.akamaized.net
     - DOMAIN-SUFFIX,indazn.com
     - DOMAIN-SUFFIX,indaznlab.com
-    - DOMAIN-SUFFIX,sentry.io
     - DOMAIN-SUFFIX,deezer.com
     - DOMAIN-SUFFIX,dzcdn.net
     - DOMAIN-SUFFIX,disco-api.com
@@ -264,18 +261,7 @@ payload:
     - DOMAIN-SUFFIX,olevod.io
     - DOMAIN-SUFFIX,olevod.tv
     - DOMAIN-SUFFIX,olevodtv.com
-    - DOMAIN-KEYWORD,openai
-    - DOMAIN-SUFFIX,auth0.com
-    - DOMAIN-SUFFIX,challenges.cloudflare.com
-    - DOMAIN-SUFFIX,client-api.arkoselabs.com
-    - DOMAIN-SUFFIX,events.statsigapi.net
-    - DOMAIN-SUFFIX,featuregates.org
-    - DOMAIN-SUFFIX,identrust.com
-    - DOMAIN-SUFFIX,intercom.io
-    - DOMAIN-SUFFIX,intercomcdn.com
-    - DOMAIN-SUFFIX,openaiapi-site.azureedge.net
     - DOMAIN-SUFFIX,sentry.io
-    - DOMAIN-SUFFIX,stripe.com
     - DOMAIN-SUFFIX,pbs.org
     - DOMAIN-SUFFIX,pandora.com
     - DOMAIN-SUFFIX,phncdn.com
@@ -388,7 +374,6 @@ payload:
     - DOMAIN-SUFFIX,armorgames.com
     - DOMAIN-SUFFIX,aspnetcdn.com
     - DOMAIN-SUFFIX,awsstatic.com
-    - DOMAIN-SUFFIX,azureedge.net
     - DOMAIN-SUFFIX,azurewebsites.net
     - DOMAIN-SUFFIX,bandwagonhost.com
     - DOMAIN-SUFFIX,bing.com
@@ -537,7 +522,6 @@ payload:
     - DOMAIN-SUFFIX,line.me
     - DOMAIN-SUFFIX,line.naver.jp
     - DOMAIN-SUFFIX,nhncorp.jp
-    - DOMAIN-SUFFIX,challenges.cloudflare.com
     - DOMAIN-KEYWORD,1drv
     - DOMAIN-KEYWORD,onedrive
     - DOMAIN-KEYWORD,skydrive
@@ -5962,8 +5946,6 @@ payload:
     - DOMAIN-SUFFIX,workatruna.com
     - DOMAIN-SUFFIX,workerdemo.org.hk
     - DOMAIN-SUFFIX,workerempowerment.org
-    - DOMAIN-SUFFIX,workers.dev
-    - DOMAIN-SUFFIX,workersthebig.net
     - DOMAIN-SUFFIX,workflow.is
     - DOMAIN-SUFFIX,worldcat.org
     - DOMAIN-SUFFIX,worldjournal.com
@@ -6445,11 +6427,6 @@ payload:
     - DOMAIN-SUFFIX,cangku.moe
     - DOMAIN-SUFFIX,level-plus.net
     - DOMAIN-SUFFIX,x.com
-    - DOMAIN-SUFFIX,oaistatic.com
-    - DOMAIN-SUFFIX,oaiusercontent.com
-    - DOMAIN,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net
-    - DOMAIN,openaicomproductionae4b.blob.core.windows.net
-    - DOMAIN,production-openaicom-storage.azureedge.net
     - DOMAIN-SUFFIX,sifangclub.com
     - DOMAIN-SUFFIX,missav.ws
     - DOMAIN-SUFFIX,missav.ai
