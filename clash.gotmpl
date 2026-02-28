@@ -1,0 +1,571 @@
+{{- $GiB := 1073741824.0 -}}
+{{- $used := printf "%.2f" (divf (add (.UserInfo.Download | default 0 | float64) (.UserInfo.Upload | default 0 | float64)) $GiB) -}}
+{{- $traffic := (.UserInfo.Traffic | default 0 | float64) -}}
+{{- $total := printf "%.2f" (divf $traffic $GiB) -}}
+
+{{- $ExpiredAt := "" -}}
+{{- $expStr := printf "%v" .UserInfo.ExpiredAt -}}
+{{- if regexMatch `^[0-9]+$` $expStr -}}
+  {{- $ts := $expStr | float64 -}}
+  {{- $sec := ternary (divf $ts 1000.0) $ts (ge (len $expStr) 13) -}}
+  {{- $ExpiredAt = (date "2006-01-02 15:04:05" (unixEpoch ($sec | int64))) -}}
+{{- else -}}
+  {{- $ExpiredAt = $expStr -}}
+{{- end -}}
+
+{{- $sortFields := list "Sort" "Port" "Name" -}}
+{{- $sortConfig := dict "Sort" "asc" "Port" "asc" "Name" "asc" -}}
+{{- $byKey := dict -}}
+{{- range $p := .Proxies -}}
+  {{- $keyParts := list -}}
+  {{- range $field := $sortFields -}}
+    {{- $order := index $sortConfig $field -}}
+    {{- $val := default "" (printf "%v" (index $p $field)) -}}
+    {{- if or (eq $field "Sort") (eq $field "Port") -}}
+      {{- $val = printf "%08d" (int (default 0 (index $p $field))) -}}
+    {{- end -}}
+    {{- if eq $order "desc" -}}
+      {{- $val = printf "~%s" $val -}}
+    {{- end -}}
+    {{- $keyParts = append $keyParts $val -}}
+  {{- end -}}
+  {{- $_ := set $byKey (join "|" $keyParts) $p -}}
+{{- end -}}
+{{- $sorted := list -}}
+{{- range $k := sortAlpha (keys $byKey) -}}
+  {{- $sorted = append $sorted (index $byKey $k) -}}
+{{- end -}}
+
+{{- $supportSet := dict "shadowsocks" true "vmess" true "vless" true "trojan" true "hysteria2" true "hysteria" true "tuic" true "anytls" true -}}
+{{- $supportedProxies := list -}}
+{{- range $proxy := $sorted -}}
+  {{- if hasKey $supportSet $proxy.Type -}}
+    {{- $supportedProxies = append $supportedProxies $proxy -}}
+  {{- end -}}
+{{- end -}}
+
+
+{{- /* 节点分组筛选逻辑 */ -}}
+{{- $allNames := "" -}}
+{{- $jpNames := "" -}}
+{{- $hktwNames := "" -}}
+{{- $usNames := "" -}}
+{{- $otherNames := "" -}}
+{{- range $proxy := $supportedProxies -}}
+  {{- $qName := printf "%q" $proxy.Name -}}
+  {{- /* 全节点列表 */ -}}
+  {{- if ne $allNames "" -}}{{- $allNames = printf "%s, %s" $allNames $qName -}}{{- else -}}{{- $allNames = $qName -}}{{- end -}}
+  {{- /* 地区筛选 */ -}}
+  {{- if regexMatch "(?i)(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|[^-]日|JP|Japan)" $proxy.Name -}}
+    {{- if ne $jpNames "" -}}{{- $jpNames = printf "%s, %s" $jpNames $qName -}}{{- else -}}{{- $jpNames = $qName -}}{{- end -}}
+  {{- else if regexMatch "(?i)(港|HK|Hong Kong|HongKong|hongkong|台|新北|彰化|TW|Taiwan|taipei)" $proxy.Name -}}
+    {{- if ne $hktwNames "" -}}{{- $hkNames = printf "%s, %s" $hkNames $qName -}}{{- else -}}{{- $hkNames = $qName -}}{{- end -}}
+  {{- else if regexMatch "(?i)(美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|US|United States|德国)" $proxy.Name -}}
+    {{- if ne $usNames "" -}}{{- $usNames = printf "%s, %s" $usNames $qName -}}{{- else -}}{{- $usNames = $qName -}}{{- end -}}
+    {{- if ne $otherNames "" -}}{{- $otherNames = printf "%s, %s" $otherNames $qName -}}{{- else -}}{{- $otherNames = $qName -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+
+
+
+{{- $proxyNames := "" -}}
+{{- range $proxy := $supportedProxies -}}
+  {{- if eq $proxyNames "" -}}
+    {{- $proxyNames = printf "%q" $proxy.Name -}}
+  {{- else -}}
+    {{- $proxyNames = printf "%s, %q" $proxyNames $proxy.Name -}}
+  {{- end -}}
+{{- end -}}
+
+
+# {{ .SiteName }}-{{ .SubscribeName }}
+# Traffic: {{ $used }} GiB/{{ $total }} GiB | Expires: {{ $ExpiredAt }}
+# Generated at: {{ now | date "2006-01-02 15:04:05" }}
+
+mixed-port: 7890
+allow-lan: true
+bind-address: '*'
+mode: rule
+log-level: info
+external-controller: '127.0.0.1:9090'
+hosts:
+    mtalk.google.com: 108.177.125.188
+dns:
+    enable: true
+    ipv6: false
+    listen: '127.0.0.1:5334'
+    default-nameserver: [180.184.1.1, 119.29.29.29, 223.5.5.5]
+    enhanced-mode: fake-ip
+    fake-ip-range: 198.18.0.1/16
+    use-hosts: true
+    fake-ip-filter: ['*.n.n.srv.nintendo.net', +.stun.playstation.net, 'xbox.*.*.microsoft.com', '*.msftncsi.com', '*.msftconnecttest.com', WORKGROUP, '*.lan', 'stun.*.*.*', 'stun.*.*', time.windows.com, time.nist.gov, time.apple.com, time.asia.apple.com, '*.ntp.org.cn', '*.openwrt.pool.ntp.org', time1.cloud.tencent.com, time.ustc.edu.cn, pool.ntp.org, ntp.ubuntu.com, '*.*.xboxlive.com', speedtest.cros.wr.pvp.net, stun.services.mozilla1.com, ntp.nasa.gov]
+    nameserver-policy: { +.pphimalayanrt.com: 223.5.5.5, st.dl.eccdnx.com: 223.5.5.5, +.tmall.com: 223.5.5.5, +.taobao.com: 223.5.5.5, +.alicdn.com: 223.5.5.5, +.aliyun.com: 223.5.5.5, +.alipay.com: 223.5.5.5, +.alibaba.com: 223.5.5.5, +.qq.com: 119.29.29.29, +.tencent.com: 119.29.29.29, +.weixin.com: 119.29.29.29, +.qpic.cn: 119.29.29.29, +.jd.com: 119.29.29.29, +.bilibili.com: 119.29.29.29, +.hdslb.com: 119.29.29.29, +.163.com: 119.29.29.29, +.126.com: 119.29.29.29, +.126.net: 119.29.29.29, +.127.net: 119.29.29.29, +.netease.com: 119.29.29.29, +.baidu.com: 223.5.5.5, +.bdstatic.com: 223.5.5.5, +.bilivideo.+: 119.29.29.29, +.iqiyi.com: 119.29.29.29, +.douyinvod.com: 180.184.1.1, +.douyin.com: 180.184.1.1, +.douyincdn.com: 180.184.1.1, +.douyinpic.com: 180.184.1.1, +.feishu.cn: 180.184.1.1 }
+    nameserver: ['https://223.6.6.6/dns-query', 'https://120.53.53.53/dns-query', 'tls://223.5.5.5:853']
+
+proxies:
+{{- range $proxy := $supportedProxies }}
+  {{- $server := $proxy.Server -}}
+  {{- if and (contains $server ":") (not (hasPrefix "[" $server)) -}}
+    {{- $server = printf "[%s]" $server -}}
+  {{- end -}}
+
+  {{- $password := $.UserInfo.Password -}}
+  {{- if and (eq $proxy.Type "shadowsocks") (ne (default "" $proxy.ServerKey) "") -}}
+    {{- $method := $proxy.Method -}}
+    {{- if or (hasPrefix "2022-blake3-" $method) (eq $method "2022-blake3-aes-128-gcm") (eq $method "2022-blake3-aes-256-gcm") -}}
+      {{- $userKeyLen := ternary 16 32 (hasSuffix "128-gcm" $method) -}}
+      {{- $pwdStr := printf "%s" $password -}}
+      {{- $userKey := ternary $pwdStr (trunc $userKeyLen $pwdStr) (le (len $pwdStr) $userKeyLen) -}}
+      {{- $serverB64 := b64enc $proxy.ServerKey -}}
+      {{- $userB64 := b64enc $userKey -}}
+      {{- $password = printf "%s:%s" $serverB64 $userB64 -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $SkipVerify := $proxy.AllowInsecure -}}
+
+{{- if eq $proxy.Type "shadowsocks" }}
+- name: {{ $proxy.Name | quote }}
+  type: ss
+  server: {{ $server }}
+  port: {{ $proxy.Port }}
+  cipher: {{ default "aes-128-gcm" $proxy.Method }}
+  password: {{ $password }}
+  udp: true
+  tfo: true
+  {{- if ne (default "" $proxy.Obfs) "" }}
+  plugin: obfs
+  plugin-opts:
+    mode: {{ $proxy.Obfs }}
+    host: {{ default "" $proxy.ObfsHost }}
+  {{- end }}
+{{- else if eq $proxy.Type "vmess" }}
+- name: {{ $proxy.Name | quote }}
+  type: vmess
+  server: {{ $server }}
+  port: {{ $proxy.Port }}
+  uuid: {{ $password }}
+  alterId: 0
+  cipher: auto
+  udp: true
+  tfo: true
+  {{- if or (eq $proxy.Transport "websocket") (eq $proxy.Transport "ws") }}
+  network: ws
+  ws-opts:
+    path: {{ default "/" $proxy.Path }}
+    {{- if ne (default "" $proxy.Host) "" }}
+    headers:
+      Host: {{ $proxy.Host }}
+    {{- end }}
+  {{- else if eq $proxy.Transport "http" }}
+  network: http
+  http-opts:
+    method: GET
+    path: [{{ default "/" $proxy.Path | quote }}]
+    {{- if ne (default "" $proxy.Host) "" }}
+    headers:
+      Host: [{{ $proxy.Host | quote }}]
+    {{- end }}
+  {{- else if eq $proxy.Transport "grpc" }}
+  network: grpc
+  grpc-opts:
+    grpc-service-name: {{ default "grpc" $proxy.ServiceName }}
+  {{- end }}
+  {{- if or (eq $proxy.Security "tls") (eq $proxy.Security "reality") }}
+  tls: true
+  {{- end }}
+  {{- if ne (default "" $proxy.SNI) "" }}
+  servername: {{ $proxy.SNI }}
+  {{- end }}
+  {{- if $SkipVerify }}
+  skip-cert-verify: true
+  {{- end }}
+  {{- if ne (default "" $proxy.Fingerprint) "" }}
+  client-fingerprint: {{ $proxy.Fingerprint }}
+  {{- end }}
+{{- else if eq $proxy.Type "vless" }}
+  {{- $encryptionStr := "" -}}
+  {{- $encryption := default "none" $proxy.Encryption -}}
+  {{- if eq $encryption "none" -}}
+    {{- $encryptionStr = "none" -}}
+  {{- else -}}
+    {{- $encParts := list -}}
+    {{- $encParts = append $encParts $encryption -}}
+    {{- if ne (default "" $proxy.Encryption_Mode) "" -}}
+      {{- $encParts = append $encParts $proxy.Encryption_Mode -}}
+    {{- end -}}
+    {{- if ne (default "" $proxy.EncryptionRtt) "" -}}
+      {{- $encParts = append $encParts $proxy.EncryptionRtt -}}
+    {{- end -}}
+    {{- if ne (default "" $proxy.EncryptionClientPadding) "" -}}
+      {{- $encParts = append $encParts $proxy.EncryptionClientPadding -}}
+    {{- end -}}
+    {{- if ne (default "" $proxy.EncryptionPassword) "" -}}
+      {{- $encParts = append $encParts $proxy.EncryptionPassword -}}
+    {{- end -}}
+    {{- $encryptionStr = join "." $encParts -}}
+  {{- end }}
+- name: {{ $proxy.Name | quote }}
+  type: vless
+  server: {{ $server }}
+  port: {{ $proxy.Port }}
+  uuid: {{ $password }}
+  udp: true
+  tfo: true
+  encryption: {{ $encryptionStr }}
+  {{- if ne (default "" $proxy.Flow) "" }}
+  flow: {{ $proxy.Flow }}
+  {{- end }}
+  {{- if or (eq $proxy.Transport "ws") (eq $proxy.Transport "websocket") }}
+  network: ws
+  ws-opts:
+    path: {{ default "/" $proxy.Path }}
+    {{- if ne (default "" $proxy.Host) "" }}
+    headers:
+      Host: {{ $proxy.Host }}
+    {{- end }}
+  {{- else if eq $proxy.Transport "http" }}
+  network: http
+  http-opts:
+    method: GET
+    path: [{{ default "/" $proxy.Path | quote }}]
+    {{- if ne (default "" $proxy.Host) "" }}
+    headers:
+      Host: [{{ $proxy.Host | quote }}]
+    {{- end }}
+  {{- else if eq $proxy.Transport "httpupgrade" }}
+  network: httpupgrade
+  httpupgrade-opts:
+    path: {{ default "/" $proxy.Path }}
+    {{- if ne (default "" $proxy.Host) "" }}
+    headers:
+      Host: {{ $proxy.Host }}
+    {{- end }}
+  {{- else if eq $proxy.Transport "xhttp" }}
+  network: xhttp
+  xhttp-opts:
+    path: {{ default "/" $proxy.Path }}
+    {{- if ne (default "" $proxy.Host) "" }}
+    headers:
+      Host: {{ $proxy.Host }}
+    {{- end }}
+  {{- else if eq $proxy.Transport "grpc" }}
+  network: grpc
+  grpc-opts:
+    grpc-service-name: {{ default "grpc" $proxy.ServiceName }}
+  {{- end }}
+  {{- if or (eq $proxy.Security "tls") (eq $proxy.Security "reality") }}
+  tls: true
+  {{- end }}
+  {{- if ne (default "" $proxy.SNI) "" }}
+  servername: {{ $proxy.SNI }}
+  {{- end }}
+  {{- if $proxy.AllowInsecure }}
+  skip-cert-verify: true
+  {{- end }}
+  {{- if ne (default "" $proxy.Fingerprint) "" }}
+  client-fingerprint: {{ $proxy.Fingerprint }}
+  {{- end }}
+  {{- if and (eq $proxy.Security "reality") (ne (default "" $proxy.RealityPublicKey) "") }}
+  reality-opts:
+    public-key: {{ $proxy.RealityPublicKey }}
+    {{- if ne (default "" $proxy.RealityShortId) "" }}
+    short-id: {{ $proxy.RealityShortId }}
+    {{- end }}
+  {{- end }}
+{{- else if eq $proxy.Type "trojan" }}
+- name: {{ $proxy.Name | quote }}
+  type: trojan
+  server: {{ $server }}
+  port: {{ $proxy.Port }}
+  password: {{ $password }}
+  udp: true
+  tfo: true
+  {{- if or (eq $proxy.Security "tls") (eq $proxy.Security "reality") }}
+  tls: true
+  {{- end }}
+  {{- if ne (default "" $proxy.SNI) "" }}
+  sni: {{ $proxy.SNI }}
+  {{- end }}
+  {{- if $SkipVerify }}
+  skip-cert-verify: true
+  {{- end }}
+  {{- if ne (default "" $proxy.Fingerprint) "" }}
+  client-fingerprint: {{ $proxy.Fingerprint }}
+  {{- end }}
+  {{- if and (eq $proxy.Security "reality") (ne (default "" $proxy.RealityPublicKey) "") }}
+  reality-opts:
+    public-key: {{ $proxy.RealityPublicKey }}
+    {{- if ne (default "" $proxy.RealityShortId) "" }}
+    short-id: {{ $proxy.RealityShortId }}
+    {{- end }}
+  {{- end }}
+  {{- if or (eq $proxy.Transport "ws") (eq $proxy.Transport "websocket") }}
+  network: ws
+  ws-opts:
+    path: {{ default "/" $proxy.Path }}
+    {{- if ne (default "" $proxy.Host) "" }}
+    headers:
+      Host: {{ $proxy.Host }}
+    {{- end }}
+  {{- else if eq $proxy.Transport "http" }}
+  network: http
+  http-opts:
+    method: GET
+    path: [{{ default "/" $proxy.Path | quote }}]
+    {{- if ne (default "" $proxy.Host) "" }}
+    headers:
+      Host: [{{ $proxy.Host | quote }}]
+    {{- end }}
+  {{- else if eq $proxy.Transport "grpc" }}
+  network: grpc
+  grpc-opts:
+    grpc-service-name: {{ default "grpc" $proxy.ServiceName }}
+  {{- end }}
+{{- else if or (eq $proxy.Type "hysteria2") (eq $proxy.Type "hysteria") }}
+- name: {{ $proxy.Name | quote }}
+  type: hysteria2
+  server: {{ $server }}
+  port: {{ $proxy.Port }}
+  password: {{ $password }}
+  udp: true
+  tfo: true
+  {{- if ne (default "" $proxy.SNI) "" }}
+  sni: {{ $proxy.SNI }}
+  {{- end }}
+  {{- if $proxy.AllowInsecure }}
+  skip-cert-verify: true
+  {{- end }}
+  {{- if ne (default "" $proxy.ObfsPassword) "" }}
+  obfs: salamander
+  obfs-password: {{ $proxy.ObfsPassword }}
+  {{- end }}
+  {{- if ne (default "" $proxy.HopPorts) "" }}
+  ports: {{ $proxy.HopPorts }}
+  {{- end }}
+  {{- if ne (default 0 $proxy.HopInterval) 0 }}
+  hop-interval: {{ $proxy.HopInterval }}
+  {{- end }}
+  {{- if ne (default "" (printf "%v" $proxy.UpMbps)) "" }}
+  up: "{{ $proxy.UpMbps }} Mbps"
+  {{- end }}
+  {{- if ne (default "" (printf "%v" $proxy.DownMbps)) "" }}
+  down: "{{ $proxy.DownMbps }} Mbps"
+  {{- end }}
+{{- else if eq $proxy.Type "tuic" }}
+- name: {{ $proxy.Name | quote }}
+  type: tuic
+  server: {{ $server }}
+  port: {{ $proxy.Port }}
+  uuid: {{ default "" $proxy.ServerKey }}
+  password: {{ $password }}
+  udp: true
+  tfo: true
+  {{- if ne (default "" $proxy.SNI) "" }}
+  sni: {{ $proxy.SNI }}
+  {{- end }}
+  {{- if $proxy.AllowInsecure }}
+  skip-cert-verify: true
+  {{- end }}
+  {{- if $proxy.DisableSNI }}
+  disable-sni: true
+  {{- end }}
+  {{- if $proxy.ReduceRtt }}
+  reduce-rtt: true
+  {{- end }}
+  {{- if ne (default "" $proxy.UDPRelayMode) "" }}
+  udp-relay-mode: {{ $proxy.UDPRelayMode }}
+  {{- end }}
+  {{- if ne (default "" $proxy.CongestionController) "" }}
+  congestion-controller: {{ $proxy.CongestionController }}
+  {{- end }}
+{{- else if eq $proxy.Type "wireguard" }}
+- name: {{ $proxy.Name | quote }}
+  type: wireguard
+  server: {{ $server }}
+  port: {{ $proxy.Port }}
+  private-key: {{ default "" $proxy.ServerKey }}
+  public-key: {{ default "" $proxy.RealityPublicKey }}
+  udp: true
+  tfo: true
+  {{- if ne (default "" $proxy.Path) "" }}
+  preshared-key: {{ $proxy.Path }}
+  {{- end }}
+  {{- if ne (default "" $proxy.RealityServerAddr) "" }}
+  ip: {{ $proxy.RealityServerAddr }}
+  {{- end }}
+  {{- if ne (default 0 $proxy.RealityServerPort) 0 }}
+  ipv6: {{ $proxy.RealityServerPort }}
+  {{- end }}
+{{- else if eq $proxy.Type "anytls" }}
+- name: {{ $proxy.Name | quote }}
+  type: anytls
+  server: {{ $server }}
+  port: {{ $proxy.Port }}
+  password: {{ $password }}
+  udp: true
+  tfo: true
+  {{- if ne (default "" $proxy.SNI) "" }}
+  sni: {{ $proxy.SNI }}
+  {{- end }}
+  {{- if $proxy.AllowInsecure }}
+  skip-cert-verify: true
+  {{- end }}
+  {{- if ne (default "" $proxy.Fingerprint) "" }}
+  client-fingerprint: {{ $proxy.Fingerprint }}
+  {{- end }}
+{{- else }}
+- name: {{ $proxy.Name | quote }}
+  type: {{ $proxy.Type }}
+  server: {{ $server }}
+  port: {{ $proxy.Port }}
+  udp: true
+  tfo: true
+{{- end }}
+{{- end }}
+
+proxy-groups:
+  - { name: "🔰 选择节点", type: select, proxies: ["自动选择", "故障转移",{{ $proxyNames }}] }
+  - { name: "自动选择", type: url-test, proxies: [{{ $proxyNames }}], url: "http://www.gstatic.com/generate_204", interval: 86400 }
+  - { name: "故障转移", type: fallback, proxies: [{{ $proxyNames }}], url: "http://www.gstatic.com/generate_204", interval: 7200 }
+  - { name: "🤖 AI", type: select, proxies: [🔰 选择节点,DIRECT],{{ $proxyNames }}}
+  - { name: "📺 爱奇艺&哔哩哔哩", type: select, proxies: [DIRECT,🔰 选择节点,{{ $proxyNames }}]}
+  - { name: "🌏 TikTok", type: select, proxies: [🔰 选择节点,{{ $proxyNames }}]}
+  - { name: "🎮 游戏下载", type: select, proxies: [DIRECT]}
+  - { name: "🎮 Steam 商店/社区", type: select, proxies: [🔰 选择节点,DIRECT,{{ $proxyNames }}]}
+  - { name: "🌩️ Cloudflare", type: select, proxies: [🔰 选择节点,DIRECT,{{ $proxyNames }}] }
+  - { name: "🇨🇳 国内网站", type: select, proxies: [DIRECT] }
+  - { name: "🛑 拦截广告", type: select, proxies: [REJECT,DIRECT] }
+  - { name: "🐟 漏网之鱼", type: select, proxies: [🔰 选择节点, DIRECT,{{ $proxyNames }}] }
+
+
+rules:
+    - 'IP-CIDR,139.220.243.27/32,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,172.16.102.56/32,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,185.188.32.1/28,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,221.226.128.146/32,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR6,2a0b:b580::/48,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR6,2a0b:b581::/48,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR6,2a0b:b582::/48,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR6,2a0b:b583::/48,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,1.12.12.12/32,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,17.0.0.0/8,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,63.92.224.0/19,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,65.199.22.0/23,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,139.178.128.0/18,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,144.178.0.0/19,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,144.178.36.0/22,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,144.178.48.0/20,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,192.35.50.0/24,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,198.183.17.0/24,🇨🇳 国内网站,no-resolve'
+    - 'IP-CIDR,205.180.175.0/24,🇨🇳 国内网站,no-resolve'
+    - 'DOMAIN-SUFFIX,local,DIRECT'
+    - 'IP-CIDR,192.168.0.0/16,DIRECT,no-resolve'
+    - 'IP-CIDR,10.0.0.0/8,DIRECT,no-resolve'
+    - 'IP-CIDR,172.16.0.0/12,DIRECT,no-resolve'
+    - 'IP-CIDR,127.0.0.0/8,DIRECT,no-resolve'
+    - 'IP-CIDR,100.64.0.0/10,DIRECT,no-resolve'
+    - 'IP-CIDR6,::1/128,DIRECT,no-resolve'
+    - 'IP-CIDR6,fc00::/7,DIRECT,no-resolve'
+    - 'IP-CIDR6,fe80::/10,DIRECT,no-resolve'
+    - 'IP-CIDR6,fd00::/8,DIRECT,no-resolve'
+    - 'IP-CIDR,224.0.0.0/4,REJECT,no-resolve'
+    - 'RULE-SET,Global,🔰 选择节点'
+    - 'RULE-SET,GlobalMedia,🔰 选择节点'
+    - 'RULE-SET,TikTok,🌏 TikTok'
+    - 'RULE-SET,Github,🔰 选择节点'
+    - 'RULE-SET,Google,🔰 选择节点'
+    - 'RULE-SET,ChinaMax_Domain,🇨🇳 国内网站'
+    - 'RULE-SET,OpenAI,🤖 AI'
+    - 'RULE-SET,Steam,🎮 Steam 商店/社区'
+    - 'RULE-SET,Cloudflare,🌩️ Cloudflare'
+    - 'RULE-SET,Cloudflarecn,🇨🇳 国内网站'
+    - 'RULE-SET,BiliBili,📺 爱奇艺&哔哩哔哩'
+    - 'RULE-SET,iQIYI,📺 爱奇艺&哔哩哔哩'
+    - 'RULE-SET,GameDownloadCN,🎮 游戏下载'
+    - 'GEOIP,CN,🇨🇳 国内网站'
+    - 'MATCH,🐟 漏网之鱼'
+
+rule-providers:
+  GameDownloadCN:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.cn/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Game/GameDownloadCN/GameDownloadCN.yaml
+    interval: 86400
+  Steam:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Steam/Steam.yaml
+    interval: 86400
+  OpenAI:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/blackmatrix7/ios_rule_script@master/rule/Clash/OpenAI/OpenAI_No_Resolve.yaml
+    interval: 86400
+  Cloudflare:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Cloudflare/Cloudflare_No_Resolve.yaml
+    interval: 86400
+  Cloudflarecn:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Cloudflarecn/Cloudflarecn_No_Resolve.yaml
+    interval: 86400
+  BiliBili:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/blackmatrix7/ios_rule_script@master/rule/Clash/BiliBili/BiliBili_No_Resolve.yaml
+    interval: 86400
+  iQIYI:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/blackmatrix7/ios_rule_script@master/rule/Clash/iQIYI/iQIYI_No_Resolve.yaml
+    interval: 86400
+  ChinaMax_Domain:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/blackmatrix7/ios_rule_script@master/rule/Clash/ChinaMax/ChinaMax_Domain_No_Resolve.yaml
+    interval: 86400
+  Google:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/perfect-panel/rules/rule/Clash/Google/Google_No_Resolve.yaml
+    interval: 86400
+  Github:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/perfect-panel/rules/rule/Clash/GitHub/GitHub.yaml
+    interval: 86400
+  TikTok:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/perfect-panel/rules/rule/Clash/TikTok/TikTok.yaml
+    interval: 86400
+  Global:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/pkpkgtr1/Clash@main/rule/Global.yaml
+    interval: 86400
+  GlobalMedia:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/perfect-panel/rules/rule/Clash/GlobalMedia/GlobalMedia_Classical_No_Resolve.yaml
+    interval: 86400
+
+url-rewrite:
+  - ^https?:\/\/(www.)?g\.cn https://www.google.com 302
+  - ^https?:\/\/(www.)?google\.cn https://www.google.com 302
