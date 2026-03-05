@@ -1,4 +1,5 @@
 payload:
+    - DOMAIN,vdownload.hembed.com
     - DOMAIN,api-abematv.bucketeer.jp
     - DOMAIN,atv-ps.amazon.com
     - DOMAIN,ktpx.amazon.com
