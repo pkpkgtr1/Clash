@@ -43,7 +43,6 @@ payload:
     - DOMAIN,api-jooxtt.sanook.com
 
     # ===== DOMAIN-KEYWORD =====
-    - DOMAIN-KEYWORD,steampipe,DIRECT
     - DOMAIN-KEYWORD,avoddashs
     - DOMAIN-KEYWORD,bbcfmt
     - DOMAIN-KEYWORD,uk-live
@@ -81,17 +80,6 @@ payload:
     - DOMAIN-KEYWORD,nikke-
 
     # ===== DOMAIN-SUFFIX =====
-    - DOMAIN-SUFFIX,pkpkgtr.lol,DIRECT
-    - DOMAIN-SUFFIX,pkpkgtr.xyz,DIRECT
-    - DOMAIN-SUFFIX,cdnlz14.com,DIRECT
-    - DOMAIN-SUFFIX,vv.jisuzyv.com,DIRECT
-    - DOMAIN-SUFFIX,wlcdn88.com,DIRECT
-    - DOMAIN-SUFFIX,qtlglb.com,DIRECT
-    - DOMAIN-SUFFIX,queniuqe.com,DIRECT
-    - DOMAIN-SUFFIX,office.com,DIRECT
-    - DOMAIN-SUFFIX,events.data.microsoft.com,DIRECT
-    - DOMAIN-SUFFIX,dcg.microsoft.com,DIRECT
-    - DOMAIN-SUFFIX,download.windowsupdate.com,DIRECT
     - DOMAIN-SUFFIX,t.me
     - DOMAIN-SUFFIX,tdesktop.com
     - DOMAIN-SUFFIX,telegra.ph
@@ -5873,12 +5861,6 @@ payload:
     - DOMAIN-SUFFIX,app-measurement.net
     - DOMAIN-SUFFIX,goo.gl
     - DOMAIN-SUFFIX,gstatic.cn
-    - DOMAIN-SUFFIX,acl4.ssr,DIRECT
-    - DOMAIN-SUFFIX,ip6-localhost,DIRECT
-    - DOMAIN-SUFFIX,ip6-loopback,DIRECT
-    - DOMAIN-SUFFIX,lan,DIRECT
-    - DOMAIN-SUFFIX,local,DIRECT
-    - DOMAIN-SUFFIX,localhost,DIRECT
     - DOMAIN-SUFFIX,oraclecloud.com
     - DOMAIN-SUFFIX,sukebei.nyaa.si
     - DOMAIN-SUFFIX,intlgame.com
@@ -5916,21 +5898,6 @@ payload:
     - DOMAIN-SUFFIX,on.epicgames.com
     - DOMAIN-SUFFIX,oaistatic.com
     - DOMAIN-SUFFIX,oaiusercontent.com
-
-    # ===== DST-PORT =====
-    - DST-PORT,25,DIRECT
-    - DST-PORT,57,DIRECT
-    - DST-PORT,109,DIRECT
-    - DST-PORT,110,DIRECT
-    - DST-PORT,143,DIRECT
-    - DST-PORT,158,DIRECT
-    - DST-PORT,209,DIRECT
-    - DST-PORT,220,DIRECT
-    - DST-PORT,465,DIRECT
-    - DST-PORT,587,DIRECT
-    - DST-PORT,995,DIRECT
-    - DST-PORT,993,DIRECT
-    - DST-PORT,3306,DIRECT
 
     # ===== IP-CIDR =====
     - IP-CIDR,13.32.0.0/15,no-resolve
