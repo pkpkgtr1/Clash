@@ -43,6 +43,7 @@ payload:
     - DOMAIN,api-jooxtt.sanook.com
 
     # ===== DOMAIN-KEYWORD =====
+    - DOMAIN-KEYWORD,hanime1.me
     - DOMAIN-KEYWORD,avoddashs
     - DOMAIN-KEYWORD,bbcfmt
     - DOMAIN-KEYWORD,uk-live
