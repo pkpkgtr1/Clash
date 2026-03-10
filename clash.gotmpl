@@ -435,6 +435,8 @@ proxy-groups:
   - { name: "🎮 Steam 商店/社区", type: select, proxies: [🔰 选择节点,DIRECT,{{ $proxyNames }}]}
   - { name: "🌩️ Cloudflare", type: select, proxies: [🔰 选择节点,DIRECT,{{ $proxyNames }}] }
   - { name: "🍪 Twitter", type: select, proxies: [{{ $proxyNames }}] }  
+  - { name: "🌏︎ 亚洲_ALL", type: url-test, proxies: [{{ $jpNames }}], url: "http://www.gstatic.com/generate_204", interval: 86400 }
+  - { name: "🌎️ 欧洲_ALL", type: url-test, proxies: [{{ $usNames }}], url: "http://www.gstatic.com/generate_204", interval: 86400 } 
   - { name: "🇨🇳 国内网站", type: select, proxies: [DIRECT] }
   - { name: "🛑 拦截广告", type: select, proxies: [REJECT,DIRECT] }
   - { name: "🐟 漏网之鱼", type: select, proxies: [DIRECT,🔰 选择节点,{{ $proxyNames }}] }
@@ -474,6 +476,8 @@ rules:
     - 'IP-CIDR6,fe80::/10,DIRECT,no-resolve'
     - 'IP-CIDR6,fd00::/8,DIRECT,no-resolve'
     - 'IP-CIDR,224.0.0.0/4,REJECT,no-resolve'
+    - 'RULE-SET,asia,🌏︎ 亚洲_ALL'
+    - 'RULE-SET,EU,🌎️ 欧洲_ALL'    
     - 'RULE-SET,Global,🔰 选择节点'
     - 'RULE-SET,GlobalMedia,🔰 选择节点'
     - 'RULE-SET,TikTok,🌏 TikTok'
@@ -582,6 +586,18 @@ rule-providers:
     behavior: classical
     format: yaml
     url: https://cdn.jsdmirror.cn/gh/pkpkgtr1/Clash@main/rule/docker.yaml
+    interval: 86400
+  asia:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/pkpkgtr1/Clash@main/rule/asia.yaml
+    interval: 86400
+  EU:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/pkpkgtr1/Clash@main/rule/EU.yaml
     interval: 86400
     
 url-rewrite:
