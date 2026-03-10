@@ -428,18 +428,22 @@ proxy-groups:
   - { name: "🔰 选择节点", type: select, proxies: ["自动选择", "故障转移",{{ $proxyNames }}] }
   - { name: "自动选择", type: url-test, proxies: [{{ $proxyNames }}], url: "http://www.gstatic.com/generate_204", interval: 86400 }
   - { name: "故障转移", type: fallback, proxies: [{{ $proxyNames }}], url: "http://www.gstatic.com/generate_204", interval: 7200 }
-  - { name: "🤖 AI", type: select, proxies: [🔰 选择节点,DIRECT],{{ $proxyNames }}}
+  - { name: "🤖 AI", type: select, proxies: [🔰 选择节点,DIRECT,{{ $proxyNames }}]}
   - { name: "📺 爱奇艺&哔哩哔哩", type: select, proxies: [DIRECT,🔰 选择节点,{{ $proxyNames }}]}
   - { name: "🌏 TikTok", type: select, proxies: [🔰 选择节点,{{ $proxyNames }}]}
   - { name: "🎮 游戏下载", type: select, proxies: [DIRECT]}
   - { name: "🎮 Steam 商店/社区", type: select, proxies: [🔰 选择节点,DIRECT,{{ $proxyNames }}]}
   - { name: "🌩️ Cloudflare", type: select, proxies: [🔰 选择节点,DIRECT,{{ $proxyNames }}] }
+  - { name: "🍪 Twitter", type: select, proxies: [{{ $proxyNames }}] }  
   - { name: "🇨🇳 国内网站", type: select, proxies: [DIRECT] }
   - { name: "🛑 拦截广告", type: select, proxies: [REJECT,DIRECT] }
-  - { name: "🐟 漏网之鱼", type: select, proxies: [🔰 选择节点, DIRECT,{{ $proxyNames }}] }
+  - { name: "🐟 漏网之鱼", type: select, proxies: [DIRECT,🔰 选择节点,{{ $proxyNames }}] }
 
 
 rules:
+    - 'DOMAIN-SUFFIX,hdkyl.in,🇨🇳 国内网站'
+    - 'DOMAIN-SUFFIX,pkpkgtr.xyz,🇨🇳 国内网站'
+    - 'DOMAIN-SUFFIX,pkpkgtr.lol,🇨🇳 国内网站'
     - 'IP-CIDR,139.220.243.27/32,🇨🇳 国内网站,no-resolve'
     - 'IP-CIDR,172.16.102.56/32,🇨🇳 国内网站,no-resolve'
     - 'IP-CIDR,185.188.32.1/28,🇨🇳 国内网站,no-resolve'
@@ -475,14 +479,16 @@ rules:
     - 'RULE-SET,TikTok,🌏 TikTok'
     - 'RULE-SET,Github,🔰 选择节点'
     - 'RULE-SET,Google,🔰 选择节点'
-    - 'RULE-SET,ChinaMax_Domain,🇨🇳 国内网站'
+    - 'RULE-SET,docker,🔰 选择节点' 
     - 'RULE-SET,OpenAI,🤖 AI'
     - 'RULE-SET,Steam,🎮 Steam 商店/社区'
     - 'RULE-SET,Cloudflare,🌩️ Cloudflare'
-    - 'RULE-SET,Cloudflarecn,🇨🇳 国内网站'
     - 'RULE-SET,BiliBili,📺 爱奇艺&哔哩哔哩'
     - 'RULE-SET,iQIYI,📺 爱奇艺&哔哩哔哩'
-    - 'RULE-SET,GameDownloadCN,🎮 游戏下载'
+    - 'RULE-SET,GameDownloadCN,🎮 游戏下载'   
+    - 'RULE-SET,Twitter,🍪 Twitter'
+    - 'RULE-SET,Cloudflarecn,🇨🇳 国内网站'
+    - 'RULE-SET,ChinaMax,🇨🇳 国内网站'
     - 'GEOIP,CN,🇨🇳 国内网站'
     - 'MATCH,🐟 漏网之鱼'
 
@@ -529,12 +535,6 @@ rule-providers:
     format: yaml
     url: https://cdn.jsdmirror.com/gh/blackmatrix7/ios_rule_script@master/rule/Clash/iQIYI/iQIYI_No_Resolve.yaml
     interval: 86400
-  ChinaMax_Domain:
-    type: http
-    behavior: classical
-    format: yaml
-    url: https://cdn.jsdmirror.com/gh/blackmatrix7/ios_rule_script@master/rule/Clash/ChinaMax/ChinaMax_Domain_No_Resolve.yaml
-    interval: 86400
   Google:
     type: http
     behavior: classical
@@ -565,7 +565,25 @@ rule-providers:
     format: yaml
     url: https://cdn.jsdmirror.com/gh/perfect-panel/rules/rule/Clash/GlobalMedia/GlobalMedia_Classical_No_Resolve.yaml
     interval: 86400
-
+  ChinaMax:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/pkpkgtr1/Clash@main/rule/ChinaMax_Classical_No_Resolve.yaml
+    interval: 86400
+  Twitter:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.com/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Twitter/Twitter_No_Resolve.yaml
+    interval: 86400
+  docker:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdmirror.cn/gh/pkpkgtr1/Clash@main/rule/docker.yaml
+    interval: 86400
+    
 url-rewrite:
   - ^https?:\/\/(www.)?g\.cn https://www.google.com 302
   - ^https?:\/\/(www.)?google\.cn https://www.google.com 302
