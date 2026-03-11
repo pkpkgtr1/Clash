@@ -1,2 +1,2 @@
 payload:
-    - www.v2ray-agent.com
+    - IP-CIDR,20.205.243.0/24,no-resolve
