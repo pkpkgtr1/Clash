@@ -2,5 +2,9 @@ payload:
     - DOMAIN,vdownload.hembed.com
     - DOMAIN-KEYWORD,javdb.com
     - DOMAIN-KEYWORD,hanime1.me
+    #=======xvideo=======
     - IP-CIDR,89.222.127.0/24,no-resolve   
-    - IP-CIDR,142.251.44.0/22,no-resolve   
+    - IP-CIDR,142.251.44.0/22,no-resolve
+    #=======GPT=======
+    - IP-CIDR,157.240.7.0/22,no-resolve   
+    
