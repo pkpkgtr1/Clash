@@ -8,3 +8,4 @@ payload:
     #=======GPT=======
     - IP-CIDR,31.13.24.0/21,no-resolve
     - IP-CIDR,31.13.64.0/18,no-resolve
+    - IP-CIDR,157.240.0.0/17,no-resolve
