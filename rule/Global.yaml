@@ -6001,8 +6001,5 @@ payload:
     - IP-CIDR,208.75.76.0/22
     - IP-CIDR,173.194.0.0/16,no-resolve
 
-    # ===== IP-CIDR6 =====
-    - IP-CIDR6,2001:67c:4e8::/48,no-resolve
-    - IP-CIDR6,2001:b28:f23d::/48,no-resolve
-    - IP-CIDR6,2001:b28:f23f::/48,no-resolve
+
 
