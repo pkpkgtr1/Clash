@@ -6,3 +6,4 @@ payload:
   - DOMAIN-SUFFIX,dmm-extension.com,DMM
   - DOMAIN-SUFFIX,createjs.com
   - IP-CIDR,3.169.36.0/22,no-resolve
+  - IP-CIDR,3.174.36.0/22,no-resolve
