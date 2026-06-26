@@ -11,6 +11,7 @@
 # PROCESS-NAME: 14
 # TOTAL: 130041
 payload:
+  - DOMAIN,haisou.cc
   - DOMAIN,cpro.baidustatic.com
   - DOMAIN,analytics.strava.com
   - DOMAIN,blzddist1-a.akamaihd.net
