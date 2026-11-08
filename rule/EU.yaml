@@ -5,6 +5,7 @@ payload:
     - DOMAIN-KEYWORD,tkzdds.cn
     - DOMAIN-KEYWORD,wirqed.cn
     - DOMAIN-KEYWORD,drleao.cn
+    - DOMAIN-KEYWORD,udhhzr.cn
     
     #=======xvideo=======
     - IP-CIDR,89.222.127.0/24,no-resolve   
