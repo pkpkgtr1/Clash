@@ -1,6 +1,7 @@
 payload:
   - DOMAIN-SUFFIX,dmm.com
   - DOMAIN-SUFFIX,dmm.co.jp
+  - DOMAIN-SUFFIX,qnlycc.cn
   - IP-CIDR,3.169.36.0/22,no-resolve
   - IP-CIDR,3.169.136.0/22,no-resolve
   - IP-CIDR,13.249.181.0/22,no-resolve
